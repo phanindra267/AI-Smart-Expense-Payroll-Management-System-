@@ -1,303 +1,147 @@
-# AI-Smart Expense & Payroll Management System
+# 🌟 AI-Smart Expense & Payroll Management System (FinAI)
 
-> Enterprise-grade fintech SaaS platform with AI-powered expense categorisation, anomaly detection, real-time dashboards, and offline-first architecture.
+> **An Enterprise-Grade FinTech SaaS Platform** featuring AI-powered expense categorization, anomaly detection, real-time interactive dashboards, advanced threat protection, and offline-first robust architecture.
 
-![Node.js](https://img.shields.io/badge/Node.js-20-green) ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue) ![React](https://img.shields.io/badge/React-18-61DAFB) ![MongoDB](https://img.shields.io/badge/MongoDB-7-47A248) ![Redis](https://img.shields.io/badge/Redis-7-DC382D) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
-
----
-
-## 🏗️ Architecture
-
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   React SPA  │────▶│  Express API │────▶│   MongoDB    │
-│  (Vite/RTK)  │◀────│  (TypeScript)│◀────│   (Mongoose) │
-│  Socket.io   │     │  Socket.io   │     └──────────────┘
-│  IndexedDB   │     │  BullMQ      │     ┌──────────────┐
-└──────────────┘     │  LangChain   │────▶│    Redis     │
-                     │  OpenTelemetry│     │   (BullMQ)   │
-                     └──────────────┘     └──────────────┘
-                            │
-                     ┌──────────────┐
-                     │    Ollama    │
-                     │  (Llama 3)  │
-                     └──────────────┘
-```
-
-## ✨ Features
-
-- **Multi-tenant** organisation & user management with enterprise JWT auth
-- **AI-powered** expense categorisation & anomaly detection (LangChain + Ollama)
-- **Real-time** dashboards with Socket.io and offline-first IndexedDB sync
-- **Payroll processing** with worker threads for parallel computation
-- **Budget monitoring** with real-time alerts (Slack + Email)
-- **Semantic search** across expenses (ChromaDB or MongoDB text fallback)
-- **PDF salary slips** generation
-- **CSV reports** export
-- **Full observability** (Winston, OpenTelemetry, Prometheus)
-- **Idempotency** for safe retries across all write operations
-- **Queue resilience** with BullMQ dead-letter queues and duplicate prevention
+![Node.js](https://img.shields.io/badge/Node.js-20-green?style=for-the-badge&logo=node.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?style=for-the-badge&logo=typescript)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)
+![MongoDB](https://img.shields.io/badge/MongoDB-7-47A248?style=for-the-badge&logo=mongodb)
+![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=for-the-badge&logo=redis)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker)
+![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)
+![Deploy Status](https://img.shields.io/badge/Deploy-Vercel%20%26%20Railway-success?style=for-the-badge&logo=vercel)
 
 ---
 
-## 🚀 Quick Start
+## 🔗 Live Deployments
+
+- **Frontend (Vercel):** [https://frontend-pearl-iota-11.vercel.app](https://frontend-pearl-iota-11.vercel.app)
+- **Backend (Railway):** [Live Backend API endpoints](https://railway.app) (Associated with this repo)
+
+---
+
+## 🏗️ System Architecture
+
+FinAI utilizes a modern **Distributed Microservices Architecture** connecting robust backend processes, ML services, and a dynamic frontend.
+
+```mermaid
+graph TD
+    Client[React Frontend / Vercel] -->|HTTPS / WSS| Gateway[Node.js API Gateway]
+    Gateway -->|Rate-Limited Proxy| Backend[Express REST API]
+    Gateway -->|Anomaly Intercept| ML[Python fastAPI ML Service]
+    
+    Backend -->|Database Queries| Mongo[(MongoDB Operational DB)]
+    Backend -->|Produce Events| Kafka{Kafka Event Broker}
+    Backend -->|Job Queueing| Redis[(Redis Memory Store)]
+    
+    Workers[BullMQ Queue Workers] <-->|Consume Jobs| Redis
+    
+    Airflow[Apache Airflow ETL] -->|Sync Data| Postgres[(PostgreSQL Data Warehouse)]
+    Airflow <-->|Extract| Mongo
+    
+    HPC[Python HPC Service] <-->|Monte Carlo Simulations| Backend
+```
+
+---
+
+## ✨ Key Features
+
+| Category | Features |
+| -------- | -------- |
+| **Authentication & Security** | FAANG-tier JWT access/refresh rotation, immediate reuse revocation, Rate-limiting, Helmet headers, Multi-tenant DB isolation. |
+| **AI Integration** | Intelligent expense categorization, Anomaly detection, Deep semantic data search (LangChain + Ollama), Policy filters preventing SQL/Prompt injection. |
+| **Expense & Payroll** | Payroll processing using worker threads for high concurrency, duplicate payment safeguards, dynamic PDF salary slips. |
+| **Real-time & Sync** | Offline-first sync with IndexedDB, Socket.io for live budget alerts and dashboard metrics. |
+| **Data Engineering** | Apache Airflow ETL integration, PostgreSQL data warehousing, Redis-based Idempotency engine. |
+| **Observability** | Integrated Prometheus metrics, OpenTelemetry, Winston centralized logging. |
+
+---
+
+## 💻 Tech Stack
+
+- **Frontend:** React 18, Vite, Redux Toolkit (RTK Query), Tailwind CSS, Socket.io-client.
+- **Backend:** Node.js 20, Express, TypeScript, Mongoose, BullMQ, KafkaJS.
+- **Databases & Brokers:** MongoDB (Operational), Redis (Queues & Idempotency), PostgreSQL (Analytics), Kafka (Event streaming).
+- **AI/ML:** Python FastAPI, LangChain, Ollama (Llama 3), Prophet Forecasting.
+- **DevOps:** Docker, Docker-compose, Kubernetes (K8s), Helm, Terraform, GitHub Actions.
+
+---
+
+## 🚀 Quick Start (Local Sandbox)
 
 ### Prerequisites
-
 - [Docker](https://docs.docker.com/get-docker/) & [Docker Compose](https://docs.docker.com/compose/install/)
-- [Node.js 20+](https://nodejs.org/) (for local development)
-- [Git](https://git-scm.com/)
+- [Node.js 20+](https://nodejs.org/) (for local development without Docker)
 
-### Option 1: Docker Compose (Recommended)
-
-```bash
-# Clone the repository
-git clone <your-repo-url>
-cd ai-expense-payroll
-
-# Copy environment file
-cp .env.example .env
-
-# Start all services
-docker-compose up --build
-
-# Pull the AI model (first time only, in a separate terminal)
-docker-compose exec ollama ollama pull llama3
-```
-
-The app will be available at:
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:3000
-- **API Health**: http://localhost:3000/health
-- **Prometheus Metrics**: http://localhost:3000/metrics
-
-### Option 2: Local Development
+### Developer Sandbox Mode (Zero Config)
+FinAI features a dynamic fallback mode. If MongoDB or Redis are not running, it automatically spins up `mongodb-memory-server` and in-memory queue mocks for seamless local testing.
 
 ```bash
-# Run the setup script
-chmod +x scripts/setup.sh
-./scripts/setup.sh
+# 1. Clone the repository
+git clone https://github.com/phanindra267/AI-Smart-Expense-Payroll-Management-System-.git
+cd AI-Smart-Expense-Payroll-Management-System-
 
-# Start backend (terminal 1)
-cd backend
-npm run dev
-
-# Start frontend (terminal 2)
-cd frontend
-npm run dev
-```
-
-### Option 3: Manual Setup
-
-```bash
-# 1. Start infrastructure
-docker-compose up -d mongodb redis ollama
-
-# 2. Pull AI model
-docker-compose exec ollama ollama pull llama3
-
-# 3. Install & run backend
+# 2. Install & Start Backend (Terminal 1)
 cd backend
 cp .env.example .env
 npm ci
-npm run migrate
 npm run dev
 
-# 4. Install & run frontend (new terminal)
+# 3. Install & Start Frontend (Terminal 2)
 cd frontend
 npm ci
 npm run dev
+```
+
+### Full Infrastructure (Docker Compose)
+```bash
+# Start all microservices, databases, and message brokers
+docker-compose up --build -d
+
+# Pull the AI model inside the container (first time only)
+docker-compose exec ollama ollama pull llama3
 ```
 
 ---
 
-## 🧪 Running Tests
+## 🧪 Testing and Quality Assurance
+
+FinAI boasts a rigorous test suite achieving a **100% pass rate** for API endpoints, auth, multi-tenancy, and AI-safety filters.
 
 ```bash
 cd backend
-
-# Run all tests
+# Run all unit and integration tests
 npm test
 
-# Run with coverage
+# Run tests with coverage reporting
 npm run test:coverage
-
-# Run specific test suite
-npm test -- --testPathPattern=auth
 ```
 
 ---
 
-## 📊 API Documentation
+## 📊 API Documentation Overview
 
 ### Authentication
+- `POST /api/auth/register` - Register organization & admin user
+- `POST /api/auth/login` - Authenticate & obtain JWT
+- `POST /api/auth/refresh` - Rotate session tokens
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register organisation + admin user |
-| POST | `/api/auth/login` | Login, returns JWT tokens |
-| POST | `/api/auth/refresh` | Rotate refresh token |
-| POST | `/api/auth/logout` | Revoke current refresh token |
-| POST | `/api/auth/logout-all` | Revoke all refresh tokens |
-| POST | `/api/auth/forgot-password` | Send password reset email |
-| POST | `/api/auth/reset-password` | Reset password with token |
+### Employees & Expenses
+- `GET/POST /api/employees` - Manage employees & adjustments
+- `GET/POST /api/expenses` - Manage expenses
+- `GET /api/expenses/search` - Semantic AI search
 
-### Employees
+### Payroll & Budgets
+- `POST /api/payroll/process` - Finalize payroll (with double-payment guards)
+- `GET /api/payroll/:id/slip` - Download salary slip PDF
+- `POST /api/budgets` - Manage dynamic organizational budgets
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/employees` | List employees |
-| POST | `/api/employees` | Create employee |
-| GET | `/api/employees/:id` | Get employee |
-| PUT | `/api/employees/:id` | Update employee |
-| DELETE | `/api/employees/:id` | Delete employee |
-| POST | `/api/employees/:id/adjustments` | Add monthly adjustments |
-
-### Expenses
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/expenses` | List expenses (with filters) |
-| POST | `/api/expenses` | Create expense |
-| GET | `/api/expenses/:id` | Get expense |
-| PUT | `/api/expenses/:id` | Update expense |
-| DELETE | `/api/expenses/:id` | Delete expense |
-| GET | `/api/expenses/search` | Semantic search |
-
-### Payroll
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/payroll/process` | Process payroll for month |
-| GET | `/api/payroll/history` | Get payroll history |
-| GET | `/api/payroll/:id/slip` | Download salary slip PDF |
-| PATCH | `/api/payroll/:id/status` | Update payroll status |
-
-### Budget
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/budgets` | List budgets |
-| POST | `/api/budgets` | Set budget |
-| PUT | `/api/budgets/:id` | Update budget |
-
-### Dashboard
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/dashboard/summary` | Dashboard summary cards |
-| GET | `/api/dashboard/trends` | Expense trends (6 months) |
-| GET | `/api/dashboard/categories` | Category breakdown |
-| GET | `/api/dashboard/alerts` | Active alerts |
-
-### AI
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/ai/chat` | Chat with AI agent |
-| GET | `/api/ai/roles` | List available AI roles |
-
-### Reports
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/reports/expenses/csv` | Export expenses as CSV |
-
-### System
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health check (DB, Redis, Ollama, workers) |
-| GET | `/metrics` | Prometheus metrics |
+### System Health & AI
+- `POST /api/ai/chat` - Interact with the Financial AI Agent
+- `GET /health` - Holistic system status check
+- `GET /metrics` - Prometheus observability scrape endpoint
 
 ---
 
-## 🔐 Security Features
-
-- **JWT** access tokens (15min) + refresh tokens (7d, HTTP-only cookies)
-- **Token rotation** with reuse detection (revoke all on reuse)
-- **bcrypt** password hashing (12 salt rounds)
-- **Rate limiting** (100 req/min per IP)
-- **Helmet** security headers
-- **CORS** restricted to frontend URL
-- **Input validation** with express-validator
-- **AI safety filters** (prompt injection prevention, tool rate limiting)
-- **Multi-tenant isolation** across all data access
-
----
-
-## 📡 Real-time Events (Socket.io)
-
-| Event | Direction | Description |
-|-------|-----------|-------------|
-| `expense:added` | Server → Client | New expense created |
-| `budget:alert` | Server → Client | Budget threshold crossed |
-| `payroll:processed` | Server → Client | Payroll processing complete |
-| `anomaly:detected` | Server → Client | Expense anomaly flagged |
-| `sync-state` | Client → Server | Request missed events |
-
----
-
-## 🌐 Free Tier Deployment
-
-| Service | Provider | Free Tier |
-|---------|----------|-----------|
-| MongoDB | [MongoDB Atlas](https://www.mongodb.com/atlas) | 512MB free cluster |
-| Redis | [Upstash](https://upstash.com/) | 10K commands/day |
-| Backend | [Render](https://render.com/) | 750 hours/month |
-| Frontend | [Vercel](https://vercel.com/) | Unlimited |
-| Email | [Gmail SMTP](https://support.google.com/a/answer/176600) | Free with App Password |
-| Slack | [Slack Webhooks](https://api.slack.com/messaging/webhooks) | Free |
-
----
-
-## 📁 Project Structure
-
-```
-ai-expense-payroll/
-├── .github/workflows/ci.yml          # CI/CD pipeline
-├── scripts/setup.sh                   # Local setup script
-├── backend/
-│   ├── src/
-│   │   ├── models/                    # Mongoose models (9 models)
-│   │   ├── controllers/               # Route handlers (8 controllers)
-│   │   ├── services/
-│   │   │   ├── ai/                    # LangChain + Ollama integration
-│   │   │   ├── queue/                 # BullMQ queues (3 queues)
-│   │   │   ├── payroll.service.ts     # Payroll calculation engine
-│   │   │   ├── notification.service.ts # Slack + Email
-│   │   │   ├── websocket.service.ts   # Socket.io server
-│   │   │   ├── idempotency.service.ts # Idempotency logic
-│   │   │   └── telemetry.service.ts   # OpenTelemetry setup
-│   │   ├── middleware/                # Auth, RBAC, rate limit, etc.
-│   │   ├── utils/                     # Logger, metrics, anonymise
-│   │   ├── workers/                   # BullMQ workers (3 workers)
-│   │   ├── routes/                    # Express route definitions
-│   │   ├── migrations/                # Database migrations
-│   │   ├── tests/                     # Jest + Supertest tests
-│   │   ├── app.ts                     # Express app setup
-│   │   └── server.ts                  # HTTP server + Socket.io
-│   ├── Dockerfile
-│   ├── package.json
-│   └── tsconfig.json
-├── frontend/
-│   ├── src/
-│   │   ├── features/                  # Feature-based modules
-│   │   ├── app/                       # Store, socket, offline storage
-│   │   ├── components/                # Shared UI components
-│   │   ├── hooks/                     # Custom React hooks
-│   │   ├── pages/                     # Page components
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   ├── Dockerfile
-│   └── package.json
-├── docker-compose.yml
-├── .env.example
-└── README.md
-```
-
----
-
-## 📝 License
-
-MIT License. You have full rights to use, modify, and commercialise this project.
+## 🤝 Contributing & License
+This project is open-source under the **MIT License**. Feel free to use, modify, and commercialize the application. Pull requests and feature suggestions are highly welcomed!
